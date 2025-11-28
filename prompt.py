@@ -2,6 +2,7 @@ import psycopg2
 from fastapi import FastAPI, HTTPException
 from cachetools import TTLCache, cached
 import time
+from config.template import PROMPT_TEMPLATE
 
 from questions.simple_questions import questions as simple
 
@@ -69,8 +70,9 @@ def generate_report():
 
 @app.get("/prompt")
 async def get_system_prompt():
+    formatted_prompt = PROMPT_TEMPLATE.format(cached_questions=generate_report())
     return {
-        "context": generate_report()
+        "context": formatted_prompt
     }
 
 
