@@ -8,7 +8,7 @@ from loguru import logger
 from pipecat.adapters.schemas.tools_schema import ToolsSchema
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADParams
-from pipecat.frames.frames import LLMRunFrame
+from pipecat.frames.frames import LLMRunFrame, TTSSpeakFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -50,8 +50,14 @@ PROMPT_ENDPOINT = os.getenv("PROMPT_ENDPOINT")
 
 
 
-async def end_call_tool(params: FunctionCallParams):
-    """Ends the active phone call with the user"""
+async def end_call_tool(params: FunctionCallParams, message: str):
+    """Ends the active phone call with the user
+    
+    Args:
+    - message: Closing message.
+    
+    """
+    await params.llm.push_frame(TTSSpeakFrame(text=message))
     await params.llm.push_frame(CancelTaskFrame(),direction=FrameDirection.UPSTREAM)
 
 async def place_order():
