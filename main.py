@@ -23,8 +23,11 @@ from pipecat.transports.websocket.fastapi import (
 )
 # Config
 import config as cfg
+import config.default_fallback_prompt as fb
+import requests
 
-DEFAULT_INSTRUCTIONS = cfg.DEFAULT_INSTRUCTIONS
+DEFAULT_INSTRUCTIONS = fb.FALLBACK_PROMPT
+PROMPT = None
 GEMINI_VOICE = cfg.GEMINI_VOICE
 GEMINI_MODEL = cfg.GEMINI_MODEL
 VAD_CONFIDENCE = cfg.VAD_CONFIDENCE
@@ -32,16 +35,19 @@ VAD_START_SECS = cfg.VAD_START_SECS
 VAD_STOP_SECS = cfg.VAD_STOP_SECS
 VAD_MIN_VOLUME = cfg.VAD_MIN_VOLUME
 
+
 if os.getenv("RAILWAY_SERVICE_NAME") is None:
     from dotenv import load_dotenv
     load_dotenv(override=True)
 
+PROMPT_ENDPOINT = os.getenv("PROMPT_ENDPOINT")
 
 async def run_bot(transport: BaseTransport, handle_sigint: bool):
     logger.info(f"Starting bot")
-
+    
     # System prompt from config
-    instructions = DEFAULT_INSTRUCTIONS
+    instructions = PROMPT or DEFAULT_INSTRUCTIONS
+    logger.info(f"Instructions: {instructions}")
 
     llm = GeminiLiveLLMService(
         api_key=os.getenv("GOOGLE_API_KEY"),
@@ -129,5 +135,11 @@ async def bot(runner_args: RunnerArguments):
 if __name__ == "__main__":
     from pipecat.runner.run import main
     # start a task to periodically update the context
-  
+    r = requests.get(PROMPT_ENDPOINT)
+    if r.status_code == 200:
+        PROMPT = r.json()["context"]
+        logger.info(f"Prompt updated: {PROMPT}")
+    else:
+        logger.error(f"Failed to get prompt: {r.status_code}")
+        
     main()
