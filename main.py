@@ -24,7 +24,7 @@ from pipecat.transports.websocket.fastapi import (
     FastAPIWebsocketParams,
     FastAPIWebsocketTransport,
 )
-from pipecat.frames.frames import EndFrame, TTSSpeakFrame
+from pipecat.frames.frames import EndFrame, CancelTaskFrame
 
 # Config
 import config as cfg
@@ -52,7 +52,7 @@ PROMPT_ENDPOINT = os.getenv("PROMPT_ENDPOINT")
 
 async def end_call_tool(params: FunctionCallParams):
     """Ends the active phone call with the user"""
-    await params.llm.push_frame(EndFrame(),direction=FrameDirection.UPSTREAM)
+    await params.llm.push_frame(CancelTaskFrame(),direction=FrameDirection.UPSTREAM)
 
 async def place_order():
     pass
