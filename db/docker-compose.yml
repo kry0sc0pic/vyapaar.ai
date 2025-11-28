@@ -1,0 +1,19 @@
+services:
+  kirana_db:
+    image: postgres:15-alpine
+    container_name: kirana_store_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: kirana_inventory
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
