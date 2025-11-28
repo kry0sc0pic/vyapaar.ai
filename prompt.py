@@ -2,6 +2,7 @@ import psycopg2
 from fastapi import FastAPI, HTTPException
 from cachetools import TTLCache, cached
 import time
+import os
 from config.template import PROMPT_TEMPLATE
 
 from questions.simple_questions import questions as simple
