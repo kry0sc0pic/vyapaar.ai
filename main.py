@@ -5,6 +5,7 @@ from fastapi import param_functions
 from loguru import logger
 
 # Pipecat
+from pipecat.adapters.schemas.tools_schema import ToolsSchema
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.frames.frames import LLMRunFrame
@@ -16,11 +17,15 @@ from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import parse_telephony_websocket
 from pipecat.serializers.exotel import ExotelFrameSerializer
 from pipecat.services.google.gemini_live.llm import GeminiLiveLLMService, InputParams
+from pipecat.processors.frame_processor import FrameDirection
+from pipecat.services.llm_service import FunctionCallParams
 from pipecat.transports.base_transport import BaseTransport
 from pipecat.transports.websocket.fastapi import (
     FastAPIWebsocketParams,
     FastAPIWebsocketTransport,
 )
+from pipecat.frames.frames import EndFrame, TTSSpeakFrame
+
 # Config
 import config as cfg
 import config.default_fallback_prompt as fb
@@ -42,6 +47,18 @@ if os.getenv("RAILWAY_SERVICE_NAME") is None:
 
 PROMPT_ENDPOINT = os.getenv("PROMPT_ENDPOINT")
 
+
+
+
+async def end_call_tool(params: FunctionCallParams):
+    """Ends the active phone call with the user"""
+    await params.llm.push_frame(EndFrame(),direction=FrameDirection.UPSTREAM)
+
+async def place_order():
+    pass
+
+tools = ToolsSchema(standard_tools=[end_call_tool])
+
 async def run_bot(transport: BaseTransport, handle_sigint: bool):
     logger.info(f"Starting bot")
     
@@ -54,6 +71,7 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool):
         model=GEMINI_MODEL,
         voice_id=GEMINI_VOICE,  # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
         system_instruction=instructions,
+        tools=tools,
         
     )
 
