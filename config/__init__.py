@@ -1,5 +1,5 @@
 # Gemini Configurations
-GEMINI_VOICE = "Charon"
+GEMINI_VOICE = "Zephyr"
 GEMINI_MODEL = "gemini-2.5-flash-native-audio-preview-09-2025"
 
 # VAD Configurations
