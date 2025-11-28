@@ -5,3 +5,4 @@ httpx
 loguru
 uvicorn[all]
 cachetools
+psycopg2-binary
