@@ -10,10 +10,13 @@ from questions.misc_questions import  questions as misc
 from questions.stock_questions import  questions as stock
 from questions.trend_questions import  questions as trend
 
+from config.sample_report import report
+
 app = FastAPI()
 
 report_cache = TTLCache(maxsize=1, ttl=60*30)
 
+# for local dev
 DB_CONFIG = {
     "dbname": "kirana_inventory",
     "user": "admin",
@@ -22,15 +25,19 @@ DB_CONFIG = {
     "port": "5432"
 }
 
+DB_URL = os.getenv('NEON_DB')
+
 app = FastAPI()
 
-report_items = simple 
+report_items = simple + trend + customer + stock + misc
 
 @cached(report_cache)
 def generate_report():
     conn = None
+    return report
     try:
-        conn = psycopg2.connect(**DB_CONFIG)
+        # conn = psycopg2.connect(**DB_CONFIG)
+        conn = psycopg2.connect(DB_URL)
         cur = conn.cursor()
         print(f"No. of items: {len(report_items)}")
 
@@ -82,4 +89,5 @@ async def get_system_prompt():
 
 if __name__ == "__main__":
     import uvicorn
+    generate_report()
     uvicorn.run(app, host="0.0.0.0", port=8000)
