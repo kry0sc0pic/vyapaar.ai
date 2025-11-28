@@ -23,9 +23,10 @@ from pipecat.transports.websocket.fastapi import (
 )
 # Config
 import config as cfg
+import config.default_fallback_prompt as fb
 import requests
 
-DEFAULT_INSTRUCTIONS = cfg.DEFAULT_INSTRUCTIONS
+DEFAULT_INSTRUCTIONS = fb.FALLBACK_PROMPT
 PROMPT = None
 GEMINI_VOICE = cfg.GEMINI_VOICE
 GEMINI_MODEL = cfg.GEMINI_MODEL
