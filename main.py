@@ -24,7 +24,7 @@ from pipecat.transports.websocket.fastapi import (
 )
 
 # Config
-from prompts import Prompts
+from config import DEFAULT_INSTRUCTIONS, GEMINI_VOICE, GEMINI_MODEL
 
 if os.getenv("RAILWAY_SERVICE_NAME") is None:
     from dotenv import load_dotenv
@@ -34,15 +34,15 @@ if os.getenv("RAILWAY_SERVICE_NAME") is None:
 async def run_bot(transport: BaseTransport, handle_sigint: bool):
     logger.info(f"Starting bot")
 
-    # Sample system prompt for basic chat
-    instructions = Prompts.system_prompt
+    # System prompt from config
+    instructions = DEFAULT_INSTRUCTIONS
 
     llm = GeminiLiveLLMService(
         api_key=os.getenv("GOOGLE_API_KEY"),
-        model="gemini-2.5-flash-native-audio-preview-09-2025",
-        voice_id="Charon",  # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
+        model=GEMINI_MODEL,
+        voice_id=GEMINI_VOICE,  # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
         system_instruction=instructions,
-        params=InputParams(thinking=ThinkingConfig(thinking_budget=0)),
+        
     )
 
     messages = []
@@ -115,5 +115,4 @@ async def bot(runner_args: RunnerArguments):
 
 if __name__ == "__main__":
     from pipecat.runner.run import main
-
     main()

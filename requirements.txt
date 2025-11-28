@@ -1,2 +1,6 @@
 pipecat-ai[webrtc,websocket,silero,google,local-smart-turn-v3,runner]>=0.0.90
 pipecatcloud>=0.2.6
+python-dotenv
+httpx
+loguru
+uvicorn[all]
