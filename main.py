@@ -1,13 +1,12 @@
 # Util
 import os
-
+import asyncio
+from fastapi import param_functions
 from loguru import logger
-
-# LLM
-from google.genai.types import ThinkingConfig
 
 # Pipecat
 from pipecat.audio.vad.silero import SileroVADAnalyzer
+from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.frames.frames import LLMRunFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
@@ -22,9 +21,16 @@ from pipecat.transports.websocket.fastapi import (
     FastAPIWebsocketParams,
     FastAPIWebsocketTransport,
 )
-
 # Config
-from config import DEFAULT_INSTRUCTIONS, GEMINI_VOICE, GEMINI_MODEL
+import config as cfg
+
+DEFAULT_INSTRUCTIONS = cfg.DEFAULT_INSTRUCTIONS
+GEMINI_VOICE = cfg.GEMINI_VOICE
+GEMINI_MODEL = cfg.GEMINI_MODEL
+VAD_CONFIDENCE = cfg.VAD_CONFIDENCE
+VAD_START_SECS = cfg.VAD_START_SECS
+VAD_STOP_SECS = cfg.VAD_STOP_SECS
+VAD_MIN_VOLUME = cfg.VAD_MIN_VOLUME
 
 if os.getenv("RAILWAY_SERVICE_NAME") is None:
     from dotenv import load_dotenv
@@ -103,7 +109,14 @@ async def bot(runner_args: RunnerArguments):
             audio_in_enabled=True,
             audio_out_enabled=True,
             add_wav_header=False,
-            vad_analyzer=SileroVADAnalyzer(),
+            vad_analyzer=SileroVADAnalyzer(
+                params=VADParams(
+                    confidence=VAD_CONFIDENCE,
+                    start_secs=VAD_START_SECS,
+                    stop_secs=VAD_STOP_SECS,
+                    min_volume=VAD_MIN_VOLUME,
+                )
+            ),
             serializer=serializer,
         ),
     )
@@ -115,4 +128,6 @@ async def bot(runner_args: RunnerArguments):
 
 if __name__ == "__main__":
     from pipecat.runner.run import main
+    # start a task to periodically update the context
+  
     main()
