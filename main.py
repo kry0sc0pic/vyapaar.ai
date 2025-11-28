@@ -24,7 +24,7 @@ from pipecat.transports.websocket.fastapi import (
 )
 
 # Config
-from .prompt import Prompts
+from prompts import Prompts
 
 if os.getenv("RAILWAY_SERVICE_NAME") is None:
     from dotenv import load_dotenv
