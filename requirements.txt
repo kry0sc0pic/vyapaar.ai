@@ -6,3 +6,8 @@ loguru
 uvicorn[all]
 cachetools
 psycopg2-binary
+fastapi
+resend
+reportlab
+pydantic
+email-validator
