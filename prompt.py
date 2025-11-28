@@ -5,6 +5,10 @@ import time
 from config.template import PROMPT_TEMPLATE
 
 from questions.simple_questions import questions as simple
+from questions.customer_questions import  questions as customer
+from questions.misc_questions import  questions as misc
+from questions.stock_questions import  questions as stock
+from questions.trend_questions import  questions as trend
 
 app = FastAPI()
 
