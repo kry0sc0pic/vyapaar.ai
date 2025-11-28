@@ -57,7 +57,7 @@ async def end_call_tool(params: FunctionCallParams):
 async def place_order():
     pass
 
-tools = ToolsSchema(standard_tools=[end_call_tool])
+# 
 
 async def run_bot(transport: BaseTransport, handle_sigint: bool):
     logger.info(f"Starting bot")
@@ -71,8 +71,10 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool):
         model=GEMINI_MODEL,
         voice_id=GEMINI_VOICE,  # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
         system_instruction=instructions,
-        tools=tools,
-        
+    )
+    llm.register_direct_function(
+        end_call_tool,
+        cancel_on_interruption=False
     )
 
     messages = []
