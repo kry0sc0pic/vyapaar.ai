@@ -6,6 +6,7 @@ from tkinter import Frame
 from fastapi import param_functions
 from loguru import logger
 import sys
+import httpx
 # Pipecat
 from pipecat.adapters.schemas.tools_schema import ToolsSchema
 from pipecat.adapters.schemas.function_schema import FunctionSchema
@@ -62,20 +63,14 @@ async def end_active_call(params: FunctionCallParams):
     )
 
 async def place_order(params: FunctionCallParams):
-    items = params.arguments
+    items = params.arguments.get("items", [])
+    payload = {
+        "items": items
+    }
     try:
-        r = requests.post(ORDER_ENDPOINT,json=items)
-        if r.status_code == 200:
-            await params.result_callback({
-                "status": "ok",
-                "message": "Order placed successfully. Invoice sent to email.",
-                "order_id": "5312"
-            })
-        else:
-            await params.result_callback({
-                "status": "error",
-                "message": "failed to order. order will be reattempted later."
-            })
+        with httpx.AsyncClient() as client:
+            resp = await client.post(ORDER_ENDPOINT,json=payload)
+            await params.result_callback(resp.json())
     except:
         await params.result_callback({
             "status": "error",
