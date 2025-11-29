@@ -45,6 +45,7 @@ Thank them warmly before wrapping up, ask if there's anything you can help them 
 
 Once done, call the end_call_tool function to end the call.
 
+To place orders, use the place_order function. Do this an confirm that you've taken their order and they will shortly recieve an email on the registered email about the order placement. 
 
 # Knowledge Base
 {cached_questions}
