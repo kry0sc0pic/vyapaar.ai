@@ -51,16 +51,9 @@ PROMPT_ENDPOINT = os.getenv("PROMPT_ENDPOINT")
 
 
 
-async def end_call_tool(params: FunctionCallParams, message: str):
-    """Ends the active phone call with the user
-    
-    Args:
-    - message: Closing message.
-    
-    """
-    await params.llm.push_frame(TTSSpeakFrame(text=message))
+async def end_call_tool(params: FunctionCallParams):
     await params.llm.push_frame(CancelTaskFrame(),direction=FrameDirection.UPSTREAM)
-    return {"message": message}
+    return {"message": "completed"}
 
 async def place_order():
     pass
@@ -69,14 +62,14 @@ async def place_order():
 end_call_tool_schema = FunctionSchema(
     name="end_call_tool",
     description="Ends the active phone call with the user",
-    properties={
-        "message": {
-            "type": "string",
-            "description": "Closing message to play to the user."
-        },
+    # properties={
+    #     # "message": {
+    #     #     "type": "string",
+    #     #     "description": "Closing message to play to the user."
+    #     # },
         
-    },
-    required=["message"]
+    # },
+    # required=["message"]
 )
 
 tools = ToolsSchema(standard_tools=[end_call_tool])
