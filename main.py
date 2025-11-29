@@ -63,13 +63,24 @@ async def end_active_call(params: FunctionCallParams):
 
 async def place_order(params: FunctionCallParams):
     items = params.arguments.get('items')
-    logger.info(f"Placing order for items: {items}")
-    
-    return {
-        "status": "ok",
-        "message": "Order placed successfully. Invoice sent to email.",
-        "order_id": "5312"
-    }
+    try:
+        r = requests.post(ORDER_ENDPOINT,json=items)
+        if r.status_code == 200:
+            await params.result_callback({
+                "status": "ok",
+                "message": "Order placed successfully. Invoice sent to email.",
+                "order_id": "5312"
+            })
+        else:
+            await params.result_callback({
+                "status": "error",
+                "message": "failed to order. order will be reattempted later."
+            })
+    except:
+        await params.result_callback({
+            "status": "error",
+            "message": "system is down. please try later."
+        })
 
 place_order_schema = FunctionSchema(
     name="place_order",
