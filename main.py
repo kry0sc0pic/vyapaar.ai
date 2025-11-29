@@ -7,7 +7,7 @@ from loguru import logger
 
 # Pipecat
 from pipecat.adapters.schemas.tools_schema import ToolsSchema
-from pipecat.adapters.schemas.function_schema import FunctionCallSchema
+from pipecat.adapters.schemas.function_schema import FunctionSchema
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.frames.frames import LLMRunFrame, TTSSpeakFrame
@@ -66,7 +66,7 @@ async def place_order():
     pass
 
 
-end_call_tool_schema = FunctionCallSchema(
+end_call_tool_schema = FunctionSchema(
     name="end_call_tool",
     description="Ends the active phone call with the user",
     properties={
