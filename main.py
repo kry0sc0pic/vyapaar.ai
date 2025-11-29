@@ -71,11 +71,18 @@ async def place_order(params: FunctionCallParams):
         with httpx.AsyncClient() as client:
             resp = await client.post(ORDER_ENDPOINT,json=payload)
             await params.result_callback(resp.json())
-    except:
-        await params.result_callback({
-            "status": "error",
-            "message": "system is down. please try later."
-        })
+    except Exception as e:
+        try:
+            requests.post(ORDER_ENDPOINT,json=payload)
+            await params.result_callback({
+                "status": "error",
+                "message": "system is down. please try later."
+            })
+        except Exception as e:
+            await params.result_callback({
+                "status": "error",
+                "message": "failed to order. order will be reattempted later."
+            })
 
 place_order_schema = FunctionSchema(
     name="place_order",
