@@ -27,7 +27,7 @@ from pipecat.transports.websocket.fastapi import (
     FastAPIWebsocketParams,
     FastAPIWebsocketTransport,
 )
-from pipecat.frames.frames import EndFrame, CancelTaskFrame
+from pipecat.frames.frames import EndFrame
 
 # Config
 import config as cfg
@@ -53,7 +53,11 @@ ORDER_ENDPOINT = os.getenv("ORDER_ENDPOINT")
 
 async def end_active_call(params: FunctionCallParams):
     params.llm.push_frame(
-        CancelTaskFrame(),
+        TTSSpeakFrame(text="Thank you for calling. Goodbye!"),
+        # direction=FrameDirection.UPSTREAM
+    )
+    params.llm.push_frame(
+        EndFrame(),
         direction=FrameDirection.UPSTREAM
     )
 
