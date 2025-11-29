@@ -27,7 +27,7 @@ from pipecat.transports.websocket.fastapi import (
     FastAPIWebsocketParams,
     FastAPIWebsocketTransport,
 )
-from pipecat.frames.frames import TerminateTaskFrame
+from pipecat.frames.frames import EndTaskFrame
 
 # Config
 import config as cfg
@@ -57,7 +57,7 @@ async def end_active_call(params: FunctionCallParams):
         # direction=FrameDirection.UPSTREAM
     )
     await params.llm.push_frame(
-        TerminateTaskFrame(),
+        EndTaskFrame(),
         direction=FrameDirection.UPSTREAM
     )
 
