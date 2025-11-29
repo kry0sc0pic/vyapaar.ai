@@ -52,11 +52,11 @@ PROMPT_ENDPOINT = os.getenv("PROMPT_ENDPOINT")
 ORDER_ENDPOINT = os.getenv("ORDER_ENDPOINT")
 
 async def end_active_call(params: FunctionCallParams):
-    params.llm.push_frame(
+    await params.llm.push_frame(
         TTSSpeakFrame(text="Thank you for calling. Goodbye!"),
         # direction=FrameDirection.UPSTREAM
     )
-    params.llm.push_frame(
+    await params.llm.push_frame(
         EndFrame(),
         direction=FrameDirection.UPSTREAM
     )
