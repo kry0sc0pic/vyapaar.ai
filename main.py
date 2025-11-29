@@ -62,7 +62,7 @@ async def end_active_call(params: FunctionCallParams):
     )
 
 async def place_order(params: FunctionCallParams):
-    items = params.arguments.get('items')
+    items = params.arguments
     try:
         r = requests.post(ORDER_ENDPOINT,json=items)
         if r.status_code == 200:

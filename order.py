@@ -30,7 +30,6 @@ app = FastAPI()
 
 class Item(BaseModel):
     name: str
-    unit_price: float
     quantity: int
 
 
@@ -39,7 +38,7 @@ class OrderPayload(BaseModel):
 
 
 # ----------------- Helpers -----------------
-
+item_unit_price = 50
 def _draw_box(c, x, y, w, h, fill_color=None, stroke_color=colors.black, stroke_width=1):
     """Small helper to draw a rectangle box."""
     c.setStrokeColor(stroke_color)
@@ -183,7 +182,7 @@ def generate_invoice_pdf(
             c.setFont("Helvetica", 9)
             y = table_y - header_height - row_height
 
-        line_amount = item.unit_price * item.quantity
+        line_amount = item_unit_price * item.quantity
         grand_total += line_amount
 
         # Row border
@@ -196,7 +195,7 @@ def generate_invoice_pdf(
         x += col_item_w
         c.drawRightString(x + col_qty_w - 5, y + 5, str(item.quantity))
         x += col_qty_w
-        c.drawRightString(x + col_price_w - 5, y + 5, f"{item.unit_price:,.2f}")
+        c.drawRightString(x + col_price_w - 5, y + 5, f"{item_unit_price:,.2f}")
         x += col_price_w
         c.drawRightString(x + col_amt_w - 5, y + 5, f"{line_amount:,.2f}")
 
@@ -282,10 +281,10 @@ def send_invoice_email(
     lines = []
     grand_total = 0.0
     for item in items:
-        line_total = item.unit_price * item.quantity
+        line_total = item_unit_price * item.quantity
         grand_total += line_total
         lines.append(
-            f"{item.name} — ₹{item.unit_price:,.2f} x {item.quantity} = ₹{line_total:,.2f}"
+            f"{item.name} — ₹{item_unit_price:,.2f} x {item.quantity} = ₹{line_total:,.2f}"
         )
 
     html_body = f"""
