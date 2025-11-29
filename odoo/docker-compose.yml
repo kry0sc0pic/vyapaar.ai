@@ -1,0 +1,30 @@
+services:
+  odoo-web:
+    image: odoo:16.0
+    container_name: odoo_frontend
+    depends_on:
+      - odoo-db
+    ports:
+      - "8069:8069" # Access UI at localhost:8069
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+    environment:
+      - HOST=odoo-db
+      - USER=odoo
+      - PASSWORD=odoo_db_password
+
+  odoo-db:
+    image: postgres:15
+    container_name: odoo_source_db
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo_db_password
+    ports:
+      - "5432:5432" 
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+
+volumes:
+  odoo-web-data:
+  odoo-db-data:
