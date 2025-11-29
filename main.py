@@ -1,4 +1,5 @@
 # Util
+from math import e
 import os
 import asyncio
 from fastapi import param_functions
@@ -78,6 +79,7 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool):
         system_instruction=instructions,
     )
     llm.register_function(
+        'end_call_tool',
         end_call_tool,
         cancel_on_interruption=False
     )
