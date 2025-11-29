@@ -62,14 +62,8 @@ async def place_order():
 end_call_tool_schema = FunctionSchema(
     name="end_call_tool",
     description="Ends the active phone call with the user",
-    # properties={
-    #     # "message": {
-    #     #     "type": "string",
-    #     #     "description": "Closing message to play to the user."
-    #     # },
-        
-    # },
-    # required=["message"]
+    properties={},
+    required=[]
 )
 
 tools = ToolsSchema(standard_tools=[end_call_tool])
