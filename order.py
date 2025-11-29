@@ -35,8 +35,6 @@ class Item(BaseModel):
 
 
 class OrderPayload(BaseModel):
-    customer_email: EmailStr
-    customer_name: Optional[str] = None
     items: List[Item]
 
 
@@ -330,7 +328,8 @@ async def place_order(payload: OrderPayload):
     if not payload.items:
         raise HTTPException(status_code=400, detail="No items provided")
 
-    customer_name = payload.customer_name or payload.customer_email
+    customer_name = os.getenv("CUSTOMER_NAME", "John Doe")
+    customer_email = os.getenv("CUSTOMER_EMAIL", "john.doe@example.com")
 
     # Simple "random" order id based on timestamp
     order_id = "ORD-" + datetime.utcnow().strftime("%Y%m%d%H%M%S")
@@ -346,7 +345,7 @@ async def place_order(payload: OrderPayload):
 
     try:
         message_id = send_invoice_email(
-            to_email=payload.customer_email,
+            to_email=customer_email,
             customer_name=customer_name,
             items=payload.items,
             pdf_bytes=pdf_bytes,
