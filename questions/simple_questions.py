@@ -104,5 +104,19 @@ questions = [
             ORDER BY SUM(si.quantity) ASC
             LIMIT 1;
         """
+    },
+    {
+        "question": "Which are the top 5 selling items?",
+        "template": "The top five selling items are: {value}.",
+        "format_type": "text",
+        "sql": """
+            SELECT p.name_en
+            FROM sales s
+            JOIN sale_items si ON s.sale_id = si.sale_id
+            JOIN products p ON si.product_id = p.product_id
+            GROUP BY p.name_en
+            ORDER BY SUM(si.quantity) DESC
+            LIMIT 5;
+        """
     }
 ]
