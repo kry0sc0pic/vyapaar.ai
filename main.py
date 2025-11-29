@@ -2,6 +2,7 @@
 from math import e
 import os
 import asyncio
+from tkinter import Frame
 from fastapi import param_functions
 from loguru import logger
 import sys
@@ -48,26 +49,58 @@ if os.getenv("RAILWAY_SERVICE_NAME") is None:
     load_dotenv(override=True)
 
 PROMPT_ENDPOINT = os.getenv("PROMPT_ENDPOINT")
+ORDER_ENDPOINT = os.getenv("ORDER_ENDPOINT")
 
+async def end_active_call(params: FunctionCallParams):
+    params.llm.push_frame(
+        CancelTaskFrame(),
+        direction=FrameDirection.UPSTREAM
+    )
 
+async def place_order(params: FunctionCallParams, items: list[dict]):
+    logger.info(f"Placing order for items: {items}")
+    return {
+        "status": "ok",
+        "message": "Order placed successfully",
+        "order_id": "1234567890"
+    }
 
-async def end_call_tool(params: FunctionCallParams):
-    exit(0)
-    await params.llm.push_frame(CancelTaskFrame(),direction=FrameDirection.UPSTREAM)
-    return {"message": "completed"}
+place_order_schema = FunctionSchema(
+    name="place_order",
+    description="Places an order for the given items",
+    properties={
+        "items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the item. Assume 'Item <index>' as the name if not provided."
+                    },
+                    "unit_price": {
+                        "type": "number",
+                        "description": "The unit price of the item in INR. Assume 100 INR as the unit price if not provided."
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "description": "The quantity of the item. Assume 1 as the quantity if not provided."
+                    }
+                }
+            }
+        }
+    },
+    required=["items"]
+)
 
-async def place_order():
-    pass
-
-
-end_call_tool_schema = FunctionSchema(
-    name="end_call_tool",
+end_active_call_schema = FunctionSchema(
+    name="end_active_call",
     description="Ends the active phone call with the user",
     properties={},
     required=[]
 )
 
-tools = ToolsSchema(standard_tools=[end_call_tool])
+tools = ToolsSchema(standard_tools=[place_order, end_active_call_schema])
 
 async def run_bot(transport: BaseTransport, handle_sigint: bool):
     logger.info(f"Starting bot")
@@ -81,13 +114,18 @@ async def run_bot(transport: BaseTransport, handle_sigint: bool):
         model=GEMINI_MODEL,
         voice_id=GEMINI_VOICE,  # Puck, Charon, Kore, Fenrir, Aoede, Leda, Orus, and Zephyr
         system_instruction=instructions,
+        tools=tools
     )
     llm.register_function(
-        'end_call_tool',
-        end_call_tool,
+        'place_order',
+        place_order,
         cancel_on_interruption=False
     )
-
+    llm.register_function(
+        'end_active_call',
+        end_active_call,
+        cancel_on_interruption=False
+    )
     messages = []
 
     context = OpenAILLMContext(messages)
