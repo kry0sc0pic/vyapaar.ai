@@ -4,7 +4,7 @@ import os
 import asyncio
 from fastapi import param_functions
 from loguru import logger
-
+import sys
 # Pipecat
 from pipecat.adapters.schemas.tools_schema import ToolsSchema
 from pipecat.adapters.schemas.function_schema import FunctionSchema
@@ -52,6 +52,7 @@ PROMPT_ENDPOINT = os.getenv("PROMPT_ENDPOINT")
 
 
 async def end_call_tool(params: FunctionCallParams):
+    exit(0)
     await params.llm.push_frame(CancelTaskFrame(),direction=FrameDirection.UPSTREAM)
     return {"message": "completed"}
 
