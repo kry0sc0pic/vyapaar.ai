@@ -52,10 +52,10 @@ PROMPT_ENDPOINT = os.getenv("PROMPT_ENDPOINT")
 ORDER_ENDPOINT = os.getenv("ORDER_ENDPOINT")
 
 async def end_active_call(params: FunctionCallParams):
-    await params.llm.push_frame(
-        TTSSpeakFrame(text="Thank you for calling. Goodbye!"),
-        # direction=FrameDirection.UPSTREAM
-    )
+    # await params.llm.push_frame(
+    #     TTSSpeakFrame(text="Thank you for calling. Goodbye!"),
+    #     # direction=FrameDirection.UPSTREAM
+    # )
     await params.llm.push_frame(
         EndTaskFrame(),
         direction=FrameDirection.UPSTREAM
@@ -63,6 +63,7 @@ async def end_active_call(params: FunctionCallParams):
 
 async def place_order(params: FunctionCallParams, items: list[dict]):
     logger.info(f"Placing order for items: {items}")
+    
     return {
         "status": "ok",
         "message": "Order placed successfully",
