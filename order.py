@@ -4,8 +4,9 @@ import base64
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from pydantic import BaseModel, EmailStr
+from config.default_items import fallback_products
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -322,43 +323,47 @@ def send_invoice_email(
 
 # ----------------- Endpoint -----------------
 
-@app.post("/place_order")
-async def place_order(payload: OrderPayload):
-    if not payload.items:
-        raise HTTPException(status_code=400, detail="No items provided")
+def gen_and_send(data: dict):
+    order_id = data.get("order_id")
+    customer_name = data.get("customer_name")
+    to_email = data.get("to_email")
+    items = data.get("items")
+    pdf_bytes = generate_invoice_pdf(
+        customer_name=customer_name,
+        items=items,
+        order_id=order_id,
+    )
+    message_id = send_invoice_email(
+        to_email=to_email,
+        customer_name=customer_name,
+        items=items,
+        pdf_bytes=pdf_bytes,
+        order_id=order_id,
+    )
+    return message_id
 
+@app.post("/place_order")
+async def place_order(tasks: BackgroundTasks):
+    # if not payload.items:
+    #     raise HTTPException(status_code=400, detail="No items provided")
+    items = fallback_products
     customer_name = os.getenv("CUSTOMER_NAME", "John Doe")
     customer_email = os.getenv("CUSTOMER_EMAIL", "john.doe@example.com")
 
     # Simple "random" order id based on timestamp
     order_id = "ORD-" + datetime.utcnow().strftime("%Y%m%d%H%M%S")
-
-    try:
-        pdf_bytes = generate_invoice_pdf(
-            customer_name=customer_name,
-            items=payload.items,
-            order_id=order_id,
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate PDF: {e}")
-
-    try:
-        message_id = send_invoice_email(
-            to_email=customer_email,
-            customer_name=customer_name,
-            items=payload.items,
-            pdf_bytes=pdf_bytes,
-            order_id=order_id,
-        )
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Failed to send invoice email: {e}")
-
-    return {
-        "status": "ok",
-        "message": "Invoice generated and sent via email.",
+    tasks.add_task(gen_and_send,{
         "order_id": order_id,
-        "resend_message_id": message_id,
+        "customer_name": customer_name,
+        "to_email": customer_email,
+        "items": items,
+
+    })
+    return {
+        "order_id": order_id,
+        "message": "Order placed successfully. Invoice sent to email.",
     }
+    
 
 
 if __name__ == "__main__":
