@@ -71,7 +71,7 @@ async def place_order(params: FunctionCallParams, items: list[dict]):
 
 place_order_schema = FunctionSchema(
     name="place_order",
-    description="Places an order for the given items",
+    description="Places an order for the given items.",
     properties={
         "items": {
             "type": "array",
@@ -104,7 +104,7 @@ end_active_call_schema = FunctionSchema(
     required=[]
 )
 
-tools = ToolsSchema(standard_tools=[place_order, end_active_call_schema])
+tools = ToolsSchema(standard_tools=[place_order_schema, end_active_call_schema])
 
 async def run_bot(transport: BaseTransport, handle_sigint: bool):
     logger.info(f"Starting bot")
