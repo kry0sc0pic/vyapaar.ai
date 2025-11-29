@@ -61,13 +61,14 @@ async def end_active_call(params: FunctionCallParams):
         direction=FrameDirection.UPSTREAM
     )
 
-async def place_order(params: FunctionCallParams, items: list[dict]):
+async def place_order(params: FunctionCallParams):
+    items = params.arguments.get('items')
     logger.info(f"Placing order for items: {items}")
     
     return {
         "status": "ok",
-        "message": "Order placed successfully",
-        "order_id": "1234567890"
+        "message": "Order placed successfully. Invoice sent to email.",
+        "order_id": "5312"
     }
 
 place_order_schema = FunctionSchema(
