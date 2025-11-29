@@ -11,7 +11,7 @@ from pipecat.adapters.schemas.tools_schema import ToolsSchema
 from pipecat.adapters.schemas.function_schema import FunctionSchema
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADParams
-from pipecat.frames.frames import LLMRunFrame, TTSSpeakFrame
+from pipecat.frames.frames import CancelFrame, LLMRunFrame, TTSSpeakFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -27,7 +27,7 @@ from pipecat.transports.websocket.fastapi import (
     FastAPIWebsocketParams,
     FastAPIWebsocketTransport,
 )
-from pipecat.frames.frames import EndFrame
+from pipecat.frames.frames import TerminateTaskFrame
 
 # Config
 import config as cfg
@@ -57,7 +57,7 @@ async def end_active_call(params: FunctionCallParams):
         # direction=FrameDirection.UPSTREAM
     )
     await params.llm.push_frame(
-        EndFrame(),
+        TerminateTaskFrame(),
         direction=FrameDirection.UPSTREAM
     )
 
